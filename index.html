@@ -68,7 +68,7 @@
     <button class="reset-btn" onclick="resetBoard()">إعادة تعيين</button>
 
     <script>
-                        const bank = {
+        const bank = {
             "أ": [
                 {q: "كائن بحري رخوي يمتلك ثلاثة قلوب، ودمه أزرق اللون لافتقاره للهيموجلوبين.", a: "أخطبوط"},
                 {q: "فيلسوف يوناني يُعد مؤسس علم المنطق، تلميذ أفلاطون ومعلم الإسكندر الأكبر.", a: "أرسطو"},
@@ -306,7 +306,7 @@
                 {q: "كائن مجهري دقيق لا يمكنه التكاثر إلا داخل خلايا كائن حي آخر مسبباً له الأمراض.", a: "فيروس"},
                 {q: "معدن نفيس ولماع رمزه الكيميائي Ag، وهو من أفضل الموصلات للحرارة والكهرباء.", a: "فضة"},
                 {q: "اللقب الذي كان يُطلق على الحاكم أو الملك في مصر القديمة.", a: "فرعون"},
-                {q: "صخر رسوبي أسود اللون قابل للاشتعال، استُخدم بكثرة كوقود في الثورة الصناعية.", a: "فحم"},
+                {q: "صخر رسوبي أسود اللون قابل للاشتعال، استُخدم بكثرة كوقود في الث الثورة الصناعية.", a: "فحم"},
                 {q: "سبيكة معدنية قوية جداً تتكون أساساً من الحديد مع نسبة محددة من الكربون.", a: "فولاذ"}
             ],
             "ق": [
@@ -407,38 +407,52 @@
             ]
         };
         
-
         let currentHex = null;
         let usedQuestions = {};
 
         function initBoard() {
-            const layout = [
-                ['ق', 'ص', 'و', 'د', 'ب'],
-                ['ح', 'ي', 'ض', 'هـ', 'ث'],
-                ['ك', 'ط', 'ش', 'ز', 'م'],
-                ['أ', 'ر', 'س', 'ظ', 'ث'],
-                ['ذ', 'غ', 'هـ', 'ع', 'ج']
-            ];
+            // 1. استخراج كل الحروف الموجودة في البنك
+            const allLetters = Object.keys(bank);
+            
+            // 2. خلط الحروف عشوائياً (Fisher-Yates Shuffle)
+            for (let i = allLetters.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allLetters[i], allLetters[j]] = [allLetters[j], allLetters[i]];
+            }
+
+            // 3. بناء البورد بـ 5 صفوف و5 خانات في كل صف (المجموع 25)
+            const rowsCount = 5;
+            const colsCount = 5;
             const board = document.getElementById('board');
             board.innerHTML = '';
-            layout.forEach(rowArr => {
+
+            let letterIndex = 0;
+            for (let r = 0; r < rowsCount; r++) {
                 const rowDiv = document.createElement('div');
                 rowDiv.className = 'row';
-                rowArr.forEach(letter => {
+                
+                for (let c = 0; c < colsCount; c++) {
+                    // سحب حرف من القائمة المخلوطة، لو انتهت نرجع من البداية
+                    const letter = allLetters[letterIndex % allLetters.length];
+                    letterIndex++;
+
                     const hex = document.createElement('div');
                     hex.className = 'hex';
                     hex.onclick = () => openQuestion(hex, letter);
+                    
                     const inner = document.createElement('div');
                     inner.className = 'hex-inner';
+                    
                     const span = document.createElement('span');
                     span.className = 'letter';
                     span.innerText = letter;
+                    
                     inner.appendChild(span);
                     hex.appendChild(inner);
                     rowDiv.appendChild(hex);
-                });
+                }
                 board.appendChild(rowDiv);
-            });
+            }
         }
 
         function openQuestion(hex, letter) {
@@ -460,7 +474,10 @@
         }
 
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
-        function resetBoard() { document.querySelectorAll('.hex').forEach(h => h.className = 'hex'); }
+        
+        function resetBoard() { 
+            initBoard(); // إعادة بناء وتوزيع الحروف عشوائياً من جديد
+        }
 
         initBoard();
     </script>
